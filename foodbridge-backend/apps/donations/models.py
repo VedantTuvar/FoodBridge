@@ -16,6 +16,11 @@ DONATION_STATUS_CHOICES = (
     ('expired', 'Expired'),
 )
 
+RECURRING_FREQUENCY_CHOICES = (
+    ('daily', 'Daily'),
+    ('weekly', 'Weekly'),
+)
+
 class Donation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     donor = models.ForeignKey(DonorProfile, on_delete=models.CASCADE, related_name='donations')
@@ -38,3 +43,26 @@ class Donation(models.Model):
 
     def __str__(self):
         return f"{self.food_type} ({self.quantity_kg} kg) - {self.status}"
+
+class RecurringDonationSchedule(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    donor = models.ForeignKey(DonorProfile, on_delete=models.CASCADE, related_name='recurring_schedules')
+    food_type = models.CharField(max_length=100)
+    quantity_kg = models.DecimalField(max_digits=8, decimal_places=2)
+    frequency = models.CharField(max_length=20, choices=RECURRING_FREQUENCY_CHOICES, default='daily')
+    time_of_day = models.TimeField()
+    pickup_address = models.TextField()
+    pickup_location = gis_models.PointField(srid=4326)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Recurring [{self.frequency}]: {self.food_type} by {self.donor.organization_name}"
+
+class DonationImageUpload(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    image = models.ImageField(upload_to='donation_images/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"ImageUpload #{self.id}"

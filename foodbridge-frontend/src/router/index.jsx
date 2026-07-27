@@ -11,9 +11,23 @@ import { VerifyEmailPage } from '../pages/VerifyEmailPage';
 
 import { DonorLayout } from '../layouts/DonorLayout';
 import { DonorDashboardPage } from '../pages/DonorDashboardPage';
+import { CreateDonationPage } from '../pages/CreateDonationPage';
+import { EditDonationPage } from '../pages/EditDonationPage';
+import { DonationTrackerPage } from '../pages/DonationTrackerPage';
+import { DonationHistoryPage } from '../pages/DonationHistoryPage';
+import { RecurringDonationsPage } from '../pages/RecurringDonationsPage';
+import { DonorImpactPage } from '../pages/DonorImpactPage';
+import { DonorSettingsPage } from '../pages/DonorSettingsPage';
 
 import { NGOLayout } from '../layouts/NGOLayout';
 import { NGOBrowseDonationsPage } from '../pages/NGOBrowseDonationsPage';
+import { NGOBrowseMapPage } from '../pages/NGOBrowseMapPage';
+import { NGOVerificationPage } from '../pages/NGOVerificationPage';
+import { NGOClaimHistoryPage } from '../pages/NGOClaimHistoryPage';
+import { NGOFoodRequestsPage } from '../pages/NGOFoodRequestsPage';
+import { NGOAnalyticsPage } from '../pages/NGOAnalyticsPage';
+import { NGORatingsPage } from '../pages/NGORatingsPage';
+import { NGOSettingsPage } from '../pages/NGOSettingsPage';
 
 import { VolunteerLayout } from '../layouts/VolunteerLayout';
 import { VolunteerTasksPage } from '../pages/VolunteerTasksPage';
@@ -23,8 +37,9 @@ import { CorporateDashboardPage } from '../pages/CorporateDashboardPage';
 
 import { AdminLayout } from '../layouts/AdminLayout';
 import { AdminDashboardPage } from '../pages/AdminDashboardPage';
+import { NGOVerificationQueuePage } from '../pages/NGOVerificationQueuePage';
 
-export const AppRoutes = () => {
+export const AppRoutes: React.FC = () => {
   return (
     <Routes>
       {/* Public & Auth Routes */}
@@ -35,7 +50,7 @@ export const AppRoutes = () => {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-      {/* Donor Protected Routes */}
+      {/* Donor Protected Module Routes */}
       <Route
         path="/donor"
         element={
@@ -45,9 +60,16 @@ export const AppRoutes = () => {
         }
       >
         <Route path="dashboard" element={<DonorDashboardPage />} />
+        <Route path="donations/new" element={<CreateDonationPage />} />
+        <Route path="donations/:id/edit" element={<EditDonationPage />} />
+        <Route path="donations/:id/track" element={<DonationTrackerPage />} />
+        <Route path="history" element={<DonationHistoryPage />} />
+        <Route path="recurring" element={<RecurringDonationsPage />} />
+        <Route path="impact" element={<DonorImpactPage />} />
+        <Route path="settings" element={<DonorSettingsPage />} />
       </Route>
 
-      {/* NGO Protected Routes */}
+      {/* NGO Protected Module Routes */}
       <Route
         path="/ngo"
         element={
@@ -58,9 +80,16 @@ export const AppRoutes = () => {
       >
         <Route path="dashboard" element={<NGOBrowseDonationsPage />} />
         <Route path="browse" element={<NGOBrowseDonationsPage />} />
+        <Route path="map" element={<NGOBrowseMapPage />} />
+        <Route path="verification" element={<NGOVerificationPage />} />
+        <Route path="history" element={<NGOClaimHistoryPage />} />
+        <Route path="food-requests" element={<NGOFoodRequestsPage />} />
+        <Route path="analytics" element={<NGOAnalyticsPage />} />
+        <Route path="ratings" element={<NGORatingsPage />} />
+        <Route path="settings" element={<NGOSettingsPage />} />
       </Route>
 
-      {/* Volunteer Protected Routes */}
+      {/* Volunteer Protected Module Routes */}
       <Route
         path="/volunteer"
         element={
@@ -73,7 +102,7 @@ export const AppRoutes = () => {
         <Route path="tasks/nearby" element={<VolunteerTasksPage />} />
       </Route>
 
-      {/* Corporate CSR Protected Routes */}
+      {/* Corporate CSR Protected Module Routes */}
       <Route
         path="/corporate"
         element={
@@ -85,7 +114,7 @@ export const AppRoutes = () => {
         <Route path="dashboard" element={<CorporateDashboardPage />} />
       </Route>
 
-      {/* Admin Protected Routes */}
+      {/* Admin Protected Module Routes */}
       <Route
         path="/admin"
         element={
@@ -95,6 +124,7 @@ export const AppRoutes = () => {
         }
       >
         <Route path="dashboard" element={<AdminDashboardPage />} />
+        <Route path="verifications" element={<NGOVerificationQueuePage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

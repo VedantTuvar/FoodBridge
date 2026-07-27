@@ -1,67 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import './tokens.css';
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Dark mode root variable overrides */
+  .dark {
+    --paper: #10201D;
+    --paper-alt: #1A2F29;
+    --ink: #FBFAF5;
+    --ink-soft: #A3B2A8;
+    --line: #263B34;
+    --white: #162622;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--ink);
+    font-weight: 600;
+  }
 }
 
-body {
-  background-color: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
+/* Custom Scrollbar for high density editorial layout */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  color: var(--ink);
-  font-weight: 600;
-  line-height: 1.1;
+::-webkit-scrollbar-track {
+  background: var(--paper-alt);
 }
-
-a {
-  color: var(--teal);
-  text-decoration: none;
-}
-
-a:hover {
-  color: var(--teal-deep);
-}
-
-button {
-  font-family: var(--font-body);
-  cursor: pointer;
+::-webkit-scrollbar-thumb {
+  background: var(--line);
   border-radius: var(--radius-sm);
-  transition: all 0.2s ease-in-out;
 }
-
-.mono-tag {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.card {
-  background-color: var(--white);
-  border: var(--border-hairline);
-  border-radius: var(--radius-sm);
-  padding: 20px;
-}
-
-.card-paper-alt {
-  background-color: var(--paper-alt);
-  border: var(--border-hairline);
-  border-radius: var(--radius-sm);
-  padding: 20px;
-}
-
-.callout-amber {
-  background-color: var(--paper-alt);
-  border-left: var(--border-amber);
-  border-radius: var(--radius-sm);
-  padding: 16px 20px;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--teal);
 }

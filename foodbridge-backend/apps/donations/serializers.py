@@ -1,10 +1,10 @@
 from rest_framework import serializers
 from common.utils import calculate_estimated_meals, create_geography_point
-from .models import Donation
+from .models import Donation, RecurringDonationSchedule, DonationImageUpload
 
 class DonationSerializer(serializers.ModelSerializer):
-    latitude = serializers.FloatField(write_only=True)
-    longitude = serializers.FloatField(write_only=True)
+    latitude = serializers.FloatField(write_only=True, required=False)
+    longitude = serializers.FloatField(write_only=True, required=False)
     pickup_latitude = serializers.SerializerMethodField(read_only=True)
     pickup_longitude = serializers.SerializerMethodField(read_only=True)
     donor_name = serializers.CharField(source='donor.organization_name', read_only=True)
@@ -26,8 +26,32 @@ class DonationSerializer(serializers.ModelSerializer):
         return obj.pickup_location.x if obj.pickup_location else None
 
     def create(self, validated_data):
-        lat = validated_data.pop('latitude')
-        lng = validated_data.pop('longitude')
+        lat = validated_data.pop('latitude', 37.7749)
+        lng = validated_data.pop('longitude', -122.4194)
         validated_data['pickup_location'] = create_geography_point(lat, lng)
         validated_data['estimated_meals'] = calculate_estimated_meals(validated_data['quantity_kg'])
         return super().create(validated_data)
+
+class RecurringDonationScheduleSerializer(serializers.ModelSerializer):
+    latitude = serializers.FloatField(write_only=True)
+    longitude = serializers.FloatField(write_only=True)
+
+    class Meta:
+        model = RecurringDonationSchedule
+        fields = (
+            'id', 'donor', 'food_type', 'quantity_kg', 'frequency', 
+            'time_of_day', 'pickup_address', 'latitude', 'longitude', 
+            'is_active', 'created_at'
+        )
+        read_only_fields = ('id', 'donor', 'created_at')
+
+    def create(self, validated_data):
+        lat = validated_data.pop('latitude')
+        lng = validated_data.pop('longitude')
+        validated_data['pickup_location'] = create_geography_point(lat, lng)
+        return super().create(validated_data)
+
+class DonationImageUploadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DonationImageUpload
+        fields = ('id', 'image', 'uploaded_at')
