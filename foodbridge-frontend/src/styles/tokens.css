@@ -1,0 +1,34 @@
+:root {
+  /* Color Palette - Editorial Field Guide Identity */
+  --ink: #16211D;
+  --ink-soft: #4B5750;
+  --paper: #FBFAF5;
+  --paper-alt: #F1EEE3;
+  --line: #DED9C9;
+  --teal: #0F5C56;
+  --teal-deep: #0A403C;
+  --amber: #E2932B;
+  --amber-deep: #B8721A;
+  --night: #10201D;
+  --night-soft: #1A2F29;
+  --code-bg: #12211D;
+  --code-text: #DCEAE4;
+  --red-soft: #B4502F;
+  --green-soft: #3F7D5C;
+  --white: #FFFFFF;
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+  /* Shape & Elevation Rules */
+  --radius-sm: 3px;
+  --radius-md: 3px;
+  --radius-lg: 3px;
+  --border-hairline: 1px solid var(--line);
+  --border-amber: 2px solid var(--amber);
+  --border-teal: 2px solid var(--teal);
+
+  --shadow-floating: 0 4px 20px rgba(22, 33, 29, 0.08);
+}

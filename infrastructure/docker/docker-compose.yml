@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: foodbridge_db
+    environment:
+      POSTGRES_DB: foodbridge_db
+      POSTGRES_USER: foodbridge_admin
+      POSTGRES_PASSWORD: secretpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U foodbridge_admin -d foodbridge_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: foodbridge_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../../foodbridge-backend
+      dockerfile: Dockerfile
+    container_name: foodbridge_backend
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4
+    volumes:
+      - ../../foodbridge-backend:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../../foodbridge-backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  asgi_channels:
+    build:
+      context: ../../foodbridge-backend
+      dockerfile: Dockerfile
+    container_name: foodbridge_asgi
+    command: uvicorn config.asgi:application --host 0.0.0.0 --port 8001
+    ports:
+      - "8001:8001"
+    env_file:
+      - ../../foodbridge-backend/.env
+    depends_on:
+      - redis
+      - db
+
+  celery_worker:
+    build:
+      context: ../../foodbridge-backend
+      dockerfile: Dockerfile
+    container_name: foodbridge_celery_worker
+    command: celery -A config worker -l info -Q high_priority,default,notifications,analytics
+    env_file:
+      - ../../foodbridge-backend/.env
+    depends_on:
+      - redis
+      - db
+
+  celery_beat:
+    build:
+      context: ../../foodbridge-backend
+      dockerfile: Dockerfile
+    container_name: foodbridge_celery_beat
+    command: celery -A config beat -l info
+    env_file:
+      - ../../foodbridge-backend/.env
+    depends_on:
+      - redis
+      - db
+
+  frontend:
+    build:
+      context: ../../foodbridge-frontend
+      dockerfile: Dockerfile
+    container_name: foodbridge_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
