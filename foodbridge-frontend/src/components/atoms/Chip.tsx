@@ -1,18 +1,19 @@
 import React from 'react';
 
-export interface ChipProps {
-  label: string;
-  variant?: 'filled' | 'outlined';
-  className?: string;
-}
-
-export const Chip: React.FC<ChipProps> = ({ label, variant = 'outlined', className = '' }) => {
+export const Chip = ({ label, variant = 'outlined' }) => {
   const isFilled = variant === 'filled';
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-1 rounded-sm font-mono text-[11px] font-medium border border-teal ${
-        isFilled ? 'bg-teal text-white' : 'bg-transparent text-teal'
-      } ${className}`}
+      style={{
+        display: 'inline-block',
+        padding: '4px 10px',
+        borderRadius: 'var(--radius-sm)',
+        fontFamily: 'var(--font-mono)',
+        fontSize: '11px',
+        border: '1px solid var(--teal)',
+        backgroundColor: isFilled ? 'var(--teal)' : 'transparent',
+        color: isFilled ? 'var(--white)' : 'var(--teal)',
+      }}
     >
       {label}
     </span>

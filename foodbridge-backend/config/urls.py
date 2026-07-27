@@ -14,6 +14,7 @@ urlpatterns = [
     path('api/v1/claims/', include('apps.claims.urls')),
     path('api/v1/tasks/', include('apps.tasks.urls')),
     path('api/v1/ratings/', include('apps.ratings.urls')),
+    path('api/v1/notifications/', include('apps.notifications.urls')),
     path('api/v1/analytics/', include('apps.analytics.urls')),
     path('api/v1/admin-panel/', include('apps.admin_panel.urls')),
 

@@ -1,8 +1,8 @@
 import api from './axios';
 
 export const donationApi = {
+  createDonation: (data) => api.post('/donations/', data),
   getDonations: () => api.get('/donations/'),
-  getDonationById: (id: string) => api.get(`/donations/${id}/`),
-  createDonation: (data: any) => api.post('/donations/', data),
-  cancelDonation: (id: string) => api.patch(`/donations/${id}/cancel/`),
+  getDonationById: (id) => api.get(`/donations/${id}/`),
+  cancelDonation: (id) => api.patch(`/donations/${id}/cancel/`),
 };

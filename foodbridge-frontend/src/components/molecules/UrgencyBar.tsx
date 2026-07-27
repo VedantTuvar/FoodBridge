@@ -1,30 +1,39 @@
 import React from 'react';
 
-export interface UrgencyBarProps {
-  percentage?: number; // 0 to 100
-  label?: string;
-  className?: string;
-}
-
-export const UrgencyBar: React.FC<UrgencyBarProps> = ({
-  percentage = 100,
-  label = '',
-  className = '',
-}) => {
-  const safePercentage = Math.min(100, Math.max(0, percentage));
-
+export const UrgencyBar = ({ percentage = 100, label = '' }) => {
   return (
-    <div className={`my-3 ${className}`}>
+    <div style={{ margin: '12px 0' }}>
       {label && (
-        <div className="flex justify-between font-mono text-[11px] text-ink-soft dark:text-paper-alt mb-1">
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '11px',
+            color: 'var(--ink-soft)',
+            marginBottom: '4px',
+          }}
+        >
           <span>TIME UNTIL EXPIRY</span>
-          <span className="font-semibold text-amber-deep dark:text-amber">{label}</span>
+          <span>{label}</span>
         </div>
       )}
-      <div className="w-full h-1.5 bg-paper-alt dark:bg-night rounded-sm overflow-hidden border border-line/30">
+      <div
+        style={{
+          width: '100%',
+          height: '6px',
+          backgroundColor: 'var(--paper-alt)',
+          borderRadius: 'var(--radius-sm)',
+          overflow: 'hidden',
+        }}
+      >
         <div
-          style={{ width: `${safePercentage}%` }}
-          className="h-full bg-gradient-to-r from-teal via-amber to-amber-deep transition-all duration-300"
+          style={{
+            width: `${percentage}%`,
+            height: '100%',
+            background: 'linear-gradient(90deg, var(--teal) 0%, var(--amber) 100%)',
+            transition: 'width 0.3s ease',
+          }}
         />
       </div>
     </div>

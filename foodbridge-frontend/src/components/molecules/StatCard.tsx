@@ -1,26 +1,50 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 
-export interface StatCardProps {
-  label: string;
-  value: string | number;
-  unit?: string;
-  className?: string;
-}
-
-export const StatCard: React.FC<StatCardProps> = ({ label, value, unit = '', className = '' }) => {
+export const StatCard = ({ label, value, unit = '' }) => {
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      className={`bg-white dark:bg-night-soft border border-line rounded-sm p-6 text-center flex-1 min-w-[200px] shadow-sm ${className}`}
+    <div
+      style={{
+        backgroundColor: 'var(--white)',
+        border: 'var(--border-hairline)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '24px',
+        textAlign: 'center',
+        flex: 1,
+        minWidth: '180px',
+      }}
     >
-      <span className="block font-mono text-[11px] uppercase tracking-wider text-ink-soft dark:text-paper-alt mb-2 font-medium">
+      <span
+        style={{
+          display: 'block',
+          fontFamily: 'var(--font-mono)',
+          fontSize: '11px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: 'var(--ink-soft)',
+          marginBottom: '8px',
+        }}
+      >
         {label}
       </span>
-      <div className="font-display text-4xl font-bold text-ink dark:text-paper leading-none">
-        {value} <span className="text-lg font-normal text-ink-soft dark:text-paper-alt">{unit}</span>
+      <div
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: '36px',
+          fontWeight: 700,
+          color: 'var(--ink)',
+          lineHeight: 1,
+        }}
+      >
+        {value} <span style={{ fontSize: '18px', fontWeight: 400 }}>{unit}</span>
       </div>
-      <div className="w-8 h-1 bg-amber mx-auto mt-3 rounded-full"></div>
-    </motion.div>
+      <div
+        style={{
+          width: '32px',
+          height: '3px',
+          backgroundColor: 'var(--amber)',
+          margin: '12px auto 0 auto',
+        }}
+      />
+    </div>
   );
 };

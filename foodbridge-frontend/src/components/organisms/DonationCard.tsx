@@ -1,67 +1,79 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { MapPin, Package, Clock } from 'lucide-react';
-import { Donation } from '../../types';
 import { Badge } from '../atoms/Badge';
 import { Button } from '../atoms/Button';
 import { UrgencyBar } from '../molecules/UrgencyBar';
 import { formatDate, formatKg } from '../../utils/formatters';
 
-export interface DonationCardProps {
-  donation: Donation;
+interface DonationCardProps {
+  donation: any;
   onClaim?: (id: string) => void;
   isNGO?: boolean;
-  className?: string;
 }
 
-export const DonationCard: React.FC<DonationCardProps> = ({
-  donation,
-  onClaim,
-  isNGO = false,
-  className = '',
-}) => {
+export const DonationCard: React.FC<DonationCardProps> = ({ donation, onClaim, isNGO = false }) => {
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      className={`bg-white dark:bg-night-soft border border-line rounded-sm p-6 mb-4 shadow-sm transition-all ${className}`}
+    <div
+      style={{
+        backgroundColor: 'var(--white)',
+        border: 'var(--border-hairline)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '20px',
+        marginBottom: '16px',
+      }}
     >
-      <div className="flex justify-between items-start mb-2">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <span className="font-mono text-xs text-ink-soft dark:text-paper-alt uppercase tracking-wider">
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              color: 'var(--ink-soft)',
+              textTransform: 'uppercase',
+            }}
+          >
             {donation.donor_name || 'Verified Donor'}
           </span>
-          <h3 className="font-display text-xl font-semibold text-ink dark:text-paper mt-0.5">
+          <h3
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '20px',
+              color: 'var(--ink)',
+              margin: '4px 0',
+            }}
+          >
             {donation.food_type}
           </h3>
         </div>
         <Badge status={donation.status} />
       </div>
 
-      <div className="flex flex-wrap gap-4 my-3 font-mono text-xs text-ink-soft dark:text-paper-alt">
-        <div className="flex items-center gap-1.5">
-          <Package className="w-4 h-4 text-teal" />
-          <span>{formatKg(donation.quantity_kg)} ({donation.estimated_meals} meals)</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Clock className="w-4 h-4 text-amber" />
-          <span>Expires: {formatDate(donation.perishability_window)}</span>
-        </div>
+      <div
+        style={{
+          display: 'flex',
+          gap: '16px',
+          margin: '12px 0',
+          fontFamily: 'var(--font-mono)',
+          fontSize: '13px',
+          color: 'var(--ink-soft)',
+        }}
+      >
+        <div>📦 {formatKg(donation.quantity_kg)} ({donation.estimated_meals} meals)</div>
+        <div>⏰ Expires: {formatDate(donation.perishability_window)}</div>
       </div>
 
       <UrgencyBar percentage={75} label="2 hours remaining" />
 
-      <div className="flex items-start gap-1.5 text-xs text-ink-soft dark:text-paper-alt my-2">
-        <MapPin className="w-4 h-4 text-teal shrink-0 mt-0.5" />
-        <span>{donation.pickup_address}</span>
-      </div>
+      <p style={{ fontSize: '13px', color: 'var(--ink-soft)', margin: '8px 0' }}>
+        📍 {donation.pickup_address}
+      </p>
 
-      {isNGO && donation.status === 'listed' && onClaim && (
-        <div className="mt-4 pt-3 border-t border-line">
-          <Button variant="primary" size="md" className="w-full" onClick={() => onClaim(donation.id)}>
+      {isNGO && donation.status === 'listed' && (
+        <div style={{ marginTop: '16px' }}>
+          <Button variant="primary" onClick={() => onClaim(donation.id)}>
             Claim Donation
           </Button>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };

@@ -1,33 +1,40 @@
-import React from 'react';
-import { DonationStatus } from '../../types';
-
-export interface BadgeProps {
-  status: DonationStatus;
-  label?: string;
-  className?: string;
+interface BadgeProps {
+  status?: string;
+  children?: React.ReactNode;
 }
 
-export const Badge: React.FC<BadgeProps> = ({ status, label, className = '' }) => {
-  const statusStyles: Record<DonationStatus, { bg: string; text: string }> = {
-    listed: { bg: 'bg-paper-alt text-ink-soft border border-line', text: 'Listed' },
-    claimed: { bg: 'bg-teal text-white', text: 'Claimed' },
-    assigned: { bg: 'bg-teal text-white', text: 'Assigned' },
-    picked_up: { bg: 'bg-amber text-night font-semibold', text: 'Picked Up' },
-    in_transit: { bg: 'bg-amber text-night font-semibold', text: 'In Transit' },
-    delivered: { bg: 'bg-green-soft text-white', text: 'Delivered' },
-    confirmed: { bg: 'bg-green-soft text-white', text: 'Confirmed' },
-    closed: { bg: 'bg-paper-alt text-ink-soft', text: 'Closed' },
-    cancelled: { bg: 'bg-red-soft text-white', text: 'Cancelled' },
-    expired: { bg: 'bg-red-soft text-white', text: 'Expired' },
+export const Badge: React.FC<BadgeProps> = ({ status = 'listed', children }) => {
+  const statusColors = {
+    listed: { bg: 'var(--paper-alt)', color: 'var(--ink-soft)' },
+    claimed: { bg: 'var(--teal)', color: 'var(--white)' },
+    assigned: { bg: 'var(--teal)', color: 'var(--white)' },
+    picked_up: { bg: 'var(--amber)', color: 'var(--night)' },
+    in_transit: { bg: 'var(--amber)', color: 'var(--night)' },
+    delivered: { bg: 'var(--green-soft)', color: 'var(--white)' },
+    confirmed: { bg: 'var(--green-soft)', color: 'var(--white)' },
+    closed: { bg: 'var(--paper-alt)', color: 'var(--ink-soft)' },
+    cancelled: { bg: 'var(--red-soft)', color: 'var(--white)' },
+    expired: { bg: 'var(--red-soft)', color: 'var(--white)' },
   };
 
-  const current = statusStyles[status] || statusStyles.listed;
+  const style = statusColors[status] || statusColors.listed;
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-sm font-mono text-[11px] font-medium uppercase tracking-wider ${current.bg} ${className}`}
+      style={{
+        display: 'inline-block',
+        padding: '3px 8px',
+        borderRadius: 'var(--radius-sm)',
+        fontFamily: 'var(--font-mono)',
+        fontSize: '11px',
+        fontWeight: 600,
+        textTransform: 'uppercase',
+        letterSpacing: '0.06em',
+        backgroundColor: style.bg,
+        color: style.color,
+      }}
     >
-      {label || current.text}
+      {children || status.replace('_', ' ')}
     </span>
   );
 };

@@ -85,11 +85,50 @@ export interface Task {
   donation: string;
   donation_detail?: Donation;
   volunteer?: string;
+  ngo_name?: string;
+  ngo_address?: string;
+  ngo_latitude?: number;
+  ngo_longitude?: number;
+  donor_phone?: string;
+  ngo_phone?: string;
   status: 'assigned' | 'picked_up' | 'in_transit' | 'delivered' | 'confirmed';
   pickup_time?: string;
   delivery_time?: string;
   proof_image_url?: string;
   otp_code?: string;
+  created_at: string;
+}
+
+export interface VolunteerBadge {
+  id: string;
+  title: string;
+  icon: string;
+  description: string;
+  req_count: number;
+  unlocked: boolean;
+  progress: number;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  id: string;
+  user_id: string;
+  full_name: string;
+  vehicle_type: string;
+  total_deliveries: number;
+  total_kg: number;
+  rating_avg: number;
+  points: number;
+  is_current_user: boolean;
+}
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  body: string;
+  notification_type: 'task_alert' | 'status_update' | 'badge_earned' | 'rating_received' | 'system';
+  is_read: boolean;
+  link?: string;
   created_at: string;
 }
 
@@ -120,3 +159,4 @@ export interface ToastMessage {
   title: string;
   message?: string;
 }
+
