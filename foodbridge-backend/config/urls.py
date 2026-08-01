@@ -13,10 +13,12 @@ urlpatterns = [
     path('api/v1/donations/', include('apps.donations.urls')),
     path('api/v1/claims/', include('apps.claims.urls')),
     path('api/v1/tasks/', include('apps.tasks.urls')),
+    path('api/v1/matching/', include('apps.matching.urls')),
     path('api/v1/ratings/', include('apps.ratings.urls')),
     path('api/v1/notifications/', include('apps.notifications.urls')),
     path('api/v1/analytics/', include('apps.analytics.urls')),
     path('api/v1/admin-panel/', include('apps.admin_panel.urls')),
+    path('api/v1/admin/', include('apps.admin_panel.urls')),
 
     # OpenAPI Schema & Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

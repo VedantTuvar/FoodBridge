@@ -8,6 +8,12 @@ import { RegisterPage } from '../pages/RegisterPage';
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '../pages/ResetPasswordPage';
 import { VerifyEmailPage } from '../pages/VerifyEmailPage';
+import { NotificationCenterPage } from '../pages/NotificationCenterPage';
+import { NotificationPreferencesPage } from '../pages/NotificationPreferencesPage';
+import { ImpactDashboardPage } from '../pages/ImpactDashboardPage';
+import { AnalyticsChartsPage } from '../pages/AnalyticsChartsPage';
+import { ReportsPage } from '../pages/ReportsPage';
+import { SmartMatchingPage } from '../pages/SmartMatchingPage';
 
 import { DonorLayout } from '../layouts/DonorLayout';
 import { DonorDashboardPage } from '../pages/DonorDashboardPage';
@@ -43,8 +49,21 @@ import { CorporateLayout } from '../layouts/CorporateLayout';
 import { CorporateDashboardPage } from '../pages/CorporateDashboardPage';
 
 import { AdminLayout } from '../layouts/AdminLayout';
-import { AdminDashboardPage } from '../pages/AdminDashboardPage';
-import { NGOVerificationQueuePage } from '../pages/NGOVerificationQueuePage';
+import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
+import { AdminNGOVerificationPage } from '../pages/admin/AdminNGOVerificationPage';
+import { AdminDonorVerificationPage } from '../pages/admin/AdminDonorVerificationPage';
+import { AdminVolunteerManagementPage } from '../pages/admin/AdminVolunteerManagementPage';
+import { AdminAnalyticsPage } from '../pages/admin/AdminAnalyticsPage';
+import { AdminReportsPage } from '../pages/admin/AdminReportsPage';
+import { AdminDisputesPage } from '../pages/admin/AdminDisputesPage';
+import { AdminComplaintsPage } from '../pages/admin/AdminComplaintsPage';
+import { AdminUserManagementPage } from '../pages/admin/AdminUserManagementPage';
+import { AdminRoleManagementPage } from '../pages/admin/AdminRoleManagementPage';
+import { AdminSettingsPage } from '../pages/admin/AdminSettingsPage';
+import { AdminEmergencyModePage } from '../pages/admin/AdminEmergencyModePage';
+import { AdminLogsPage } from '../pages/admin/AdminLogsPage';
+import { AdminPermissionsPage } from '../pages/admin/AdminPermissionsPage';
+import { AdminPlatformMonitoringPage } from '../pages/admin/AdminPlatformMonitoringPage';
 
 export const AppRoutes = () => {
   return (
@@ -56,6 +75,16 @@ export const AppRoutes = () => {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
+      
+      {/* Communication & Notification Hub Routes */}
+      <Route path="/notifications" element={<NotificationCenterPage />} />
+      <Route path="/notifications/preferences" element={<NotificationPreferencesPage />} />
+
+      {/* Analytics & Smart Matching Routes */}
+      <Route path="/analytics/impact" element={<ImpactDashboardPage />} />
+      <Route path="/analytics/charts" element={<AnalyticsChartsPage />} />
+      <Route path="/analytics/reports" element={<ReportsPage />} />
+      <Route path="/analytics/matching" element={<SmartMatchingPage />} />
 
       {/* Donor Protected Module Routes */}
       <Route
@@ -72,7 +101,7 @@ export const AppRoutes = () => {
         <Route path="donations/:id/track" element={<DonationTrackerPage />} />
         <Route path="history" element={<DonationHistoryPage />} />
         <Route path="recurring" element={<RecurringDonationsPage />} />
-        <Route path="impact" element={<DonorImpactPage />} />
+        <Route path="impact" element={<ImpactDashboardPage />} />
         <Route path="settings" element={<DonorSettingsPage />} />
       </Route>
 
@@ -91,7 +120,7 @@ export const AppRoutes = () => {
         <Route path="verification" element={<NGOVerificationPage />} />
         <Route path="history" element={<NGOClaimHistoryPage />} />
         <Route path="food-requests" element={<NGOFoodRequestsPage />} />
-        <Route path="analytics" element={<NGOAnalyticsPage />} />
+        <Route path="analytics" element={<AnalyticsChartsPage />} />
         <Route path="ratings" element={<NGORatingsPage />} />
         <Route path="settings" element={<NGOSettingsPage />} />
       </Route>
@@ -138,8 +167,23 @@ export const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
+        <Route index element={<AdminDashboardPage />} />
         <Route path="dashboard" element={<AdminDashboardPage />} />
-        <Route path="verifications" element={<NGOVerificationQueuePage />} />
+        <Route path="ngo-verification" element={<AdminNGOVerificationPage />} />
+        <Route path="verifications" element={<AdminNGOVerificationPage />} />
+        <Route path="donor-verification" element={<AdminDonorVerificationPage />} />
+        <Route path="volunteers" element={<AdminVolunteerManagementPage />} />
+        <Route path="analytics" element={<AdminAnalyticsPage />} />
+        <Route path="reports" element={<AdminReportsPage />} />
+        <Route path="disputes" element={<AdminDisputesPage />} />
+        <Route path="complaints" element={<AdminComplaintsPage />} />
+        <Route path="users" element={<AdminUserManagementPage />} />
+        <Route path="roles" element={<AdminRoleManagementPage />} />
+        <Route path="settings" element={<AdminSettingsPage />} />
+        <Route path="emergency" element={<AdminEmergencyModePage />} />
+        <Route path="logs" element={<AdminLogsPage />} />
+        <Route path="permissions" element={<AdminPermissionsPage />} />
+        <Route path="monitoring" element={<AdminPlatformMonitoringPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -26,6 +26,7 @@ import { Badge } from '../components/atoms/Badge';
 import { Skeleton } from '../components/atoms/Skeleton';
 import { useToast } from '../context/ToastContext';
 import { Task } from '../types';
+import { LiveMap } from '../components/organisms/LiveMap';
 
 export const VolunteerLiveTrackingPage = () => {
   const { id } = useParams<{ id?: string }>();
@@ -250,57 +251,28 @@ export const VolunteerLiveTrackingPage = () => {
       {/* Main Map & Location Console */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Visual Map Canvas */}
-        <div className="lg:col-span-2 bg-white dark:bg-night-soft border border-line rounded-sm overflow-hidden flex flex-col">
-          <div className="bg-paper-alt dark:bg-night h-[420px] relative p-6 flex flex-col justify-between overflow-hidden">
-            {/* Overlay Status Chips */}
-            <div className="flex items-center justify-between z-10">
-              <span className="bg-white dark:bg-night-soft border border-line font-mono text-xs px-3 py-1.5 rounded-sm shadow-xs flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-teal animate-pulse" />
-                Live GPS: {simulatedLat.toFixed(4)}, {simulatedLng.toFixed(4)}
-              </span>
-              <span className="bg-amber text-white font-mono text-xs font-bold px-3 py-1.5 rounded-sm shadow-xs flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" /> ETA: {etaMinutes} Mins
-              </span>
-            </div>
+        <div className="lg:col-span-2 bg-white dark:bg-night-soft border border-line rounded-sm overflow-hidden flex flex-col p-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="bg-white dark:bg-night-soft border border-line font-mono text-xs px-3 py-1.5 rounded-sm shadow-xs flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-teal animate-pulse" />
+              Live Driver GPS: {simulatedLat.toFixed(4)}, {simulatedLng.toFixed(4)}
+            </span>
+            <span className="bg-amber text-white font-mono text-xs font-bold px-3 py-1.5 rounded-sm shadow-xs flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5" /> ETA: {etaMinutes} Mins
+            </span>
+          </div>
 
-            {/* Interactive Map Visual Elements */}
-            <div className="my-auto text-center space-y-4">
-              <div className="flex items-center justify-center gap-8">
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-teal/20 border-2 border-teal flex items-center justify-center text-teal">
-                    <Building className="w-6 h-6" />
-                  </div>
-                  <span className="font-mono text-[11px] font-semibold text-teal mt-1">
-                    Donor: {task.donation_detail?.donor_name || 'Donor'}
-                  </span>
-                </div>
+          <LiveMap
+            pickupLocation={{ lat: 28.6139, lng: 77.2090, title: task.donation_detail?.donor_name || 'Donor Pickup', address: task.pickup_address }}
+            deliveryLocation={{ lat: 28.6350, lng: 77.2250, title: task.ngo_name || 'NGO Shelter', address: 'Shelter Hub' }}
+            driverLocation={{ lat: simulatedLat, lng: simulatedLng, speed: 28, etaMinutes }}
+            height="380px"
+          />
 
-                <div className="flex-1 max-w-xs border-t-2 border-dashed border-amber relative flex items-center justify-center">
-                  <div className="w-8 h-8 rounded-full bg-amber text-white flex items-center justify-center animate-bounce absolute -top-4 shadow-sm">
-                    <Navigation className="w-4 h-4" />
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-amber/20 border-2 border-amber flex items-center justify-center text-amber">
-                    <MapPin className="w-6 h-6" />
-                  </div>
-                  <span className="font-mono text-[11px] font-semibold text-amber mt-1">
-                    NGO: {task.ngo_name || 'Shelter'}
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-xs text-ink-soft max-w-md mx-auto">
-                Real-time WebSocket telemetry connected (`ws/tracking/{task.id}`). Streaming GPS pings to donor and NGO apps.
-              </p>
-            </div>
-
-            {/* Bottom Target Banner */}
-            <div className="bg-white/90 dark:bg-night-soft/90 backdrop-blur-xs border border-line p-3 rounded-sm z-10 flex items-center justify-between text-xs font-mono">
-              <span className="text-ink-soft">Target Location:</span>
-              <span className="font-bold text-ink dark:text-paper">{currentDestinationAddr}</span>
-            </div>
+          {/* Bottom Target Banner */}
+          <div className="bg-white/90 dark:bg-night-soft/90 backdrop-blur-xs border border-line p-3 rounded-sm z-10 flex items-center justify-between text-xs font-mono mt-3">
+            <span className="text-ink-soft">Target Location:</span>
+            <span className="font-bold text-ink dark:text-paper">{currentDestinationAddr}</span>
           </div>
         </div>
 

@@ -21,12 +21,13 @@ class TaskTrackingConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-    # Receive message from WebSocket (volunteer client GPS ping)
+    # Receive location update from volunteer client GPS ping
     async def receive(self, text_data):
         data = json.loads(text_data)
         latitude = data.get('latitude')
         longitude = data.get('longitude')
         speed = data.get('speed', 0)
+        heading = data.get('heading', 0)
         eta_minutes = data.get('eta_minutes', 0)
 
         # Broadcast location update to room group
@@ -38,6 +39,7 @@ class TaskTrackingConsumer(AsyncWebsocketConsumer):
                 'latitude': latitude,
                 'longitude': longitude,
                 'speed': speed,
+                'heading': heading,
                 'eta_minutes': eta_minutes,
             }
         )
@@ -50,5 +52,6 @@ class TaskTrackingConsumer(AsyncWebsocketConsumer):
             'latitude': event['latitude'],
             'longitude': event['longitude'],
             'speed': event['speed'],
+            'heading': event.get('heading', 0),
             'eta_minutes': event['eta_minutes'],
         }))

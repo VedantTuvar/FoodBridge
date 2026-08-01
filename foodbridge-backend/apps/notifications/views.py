@@ -1,14 +1,13 @@
 from rest_framework import generics, permissions, status, views
 from rest_framework.response import Response
-from .models import Notification
-from .serializers import NotificationSerializer
+from .models import Notification, NotificationPreference, ChatMessage
+from .serializers import NotificationSerializer, NotificationPreferenceSerializer, ChatMessageSerializer
 
 class NotificationListView(generics.ListAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Create initial sample notifications for demonstration if user has none
         user = self.request.user
         if not Notification.objects.filter(user=user).exists():
             Notification.objects.create(
@@ -20,20 +19,34 @@ class NotificationListView(generics.ListAPIView):
             )
             Notification.objects.create(
                 user=user,
-                title="🏅 Badge Unlocked: First Mile Hero",
-                body="Congratulations! You earned the First Mile Hero badge for completing your first rescue mission.",
-                notification_type="badge_earned",
-                link="/volunteer/badges"
+                title="📦 Delivery Status Update: In Transit",
+                body="Volunteer Alex Johnson has picked up donation #891 and is heading to Hope Sanctuary.",
+                notification_type="delivery_update",
+                link="/donor/history"
             )
             Notification.objects.create(
                 user=user,
-                title="⭐ 5-Star Review Received",
-                body="Hope Kitchen shelter left a 5-star rating: 'Arrived super fast and food was in perfect condition!'",
-                notification_type="rating_received",
-                link="/volunteer/ratings"
+                title="⏰ Perishability Reminder",
+                body="Listing #894 (Baked Goods) expires in 45 minutes.",
+                notification_type="reminder",
+                link="/ngo/browse"
+            )
+            Notification.objects.create(
+                user=user,
+                title="🏅 Badge Unlocked: First Mile Hero",
+                body="Congratulations! You earned the First Mile Hero badge.",
+                notification_type="badge_earned",
+                link="/volunteer/badges"
             )
 
         return Notification.objects.filter(user=user)
+
+class UnreadNotificationCountView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        count = Notification.objects.filter(user=request.user, is_read=False).count()
+        return Response({'unread_count': count})
 
 class MarkNotificationReadView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -53,3 +66,41 @@ class MarkAllNotificationsReadView(views.APIView):
     def post(self, request):
         Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
         return Response({'success': True, 'message': 'All notifications marked as read'})
+
+class NotificationPreferencesView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        prefs, _ = NotificationPreference.objects.get_or_create(user=request.user)
+        return Response(NotificationPreferenceSerializer(prefs).data)
+
+    def put(self, request):
+        prefs, _ = NotificationPreference.objects.get_or_create(user=request.user)
+        serializer = NotificationPreferenceSerializer(prefs, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'success': True, 'preferences': serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ChatMessageListCreateView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, room_id):
+        messages = ChatMessage.objects.filter(room_id=room_id)
+        serializer = ChatMessageSerializer(messages, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, room_id):
+        message_text = request.data.get('message', '')
+        attachment_url = request.data.get('attachment_url', '')
+
+        if not message_text and not attachment_url:
+            return Response({'error': 'Message text or attachment required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        chat_msg = ChatMessage.objects.create(
+            room_id=room_id,
+            sender=request.user,
+            message=message_text,
+            attachment_url=attachment_url
+        )
+        return Response(ChatMessageSerializer(chat_msg).data, status=status.HTTP_201_CREATED)

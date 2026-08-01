@@ -1,16 +1,30 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../atoms/Button';
+import { useNotificationSocket } from '../../hooks/useNotificationSocket';
+import { useToast } from '../../context/ToastContext';
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { addToast } = useToast();
+  const { latestNotification, unreadCount } = useNotificationSocket(user?.id);
+
+  useEffect(() => {
+    if (latestNotification) {
+      addToast({
+        type: latestNotification.level === 'emergency' ? 'error' : latestNotification.level === 'warning' ? 'info' : 'success',
+        title: latestNotification.title,
+        message: latestNotification.message,
+      });
+    }
+  }, [latestNotification, addToast]);
 
   return (
     <nav
       style={{
         backgroundColor: 'var(--paper)',
-        borderBottom: 'var(--border-hairline)',
+        borderBottom: '1px solid var(--line)',
         padding: '16px 32px',
         display: 'flex',
         justifyContent: 'space-between',
@@ -23,7 +37,7 @@ export const Navbar = () => {
             width: '28px',
             height: '28px',
             backgroundColor: 'var(--teal)',
-            borderRadius: 'var(--radius-sm)',
+            borderRadius: '3px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -49,6 +63,28 @@ export const Navbar = () => {
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
         {isAuthenticated ? (
           <>
+            {/* Real-time Notification Bell Indicator */}
+            <div style={{ position: 'relative', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+              <span style={{ fontSize: '18px' }}>🔔</span>
+              {unreadCount > 0 && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '-6px',
+                    right: '-8px',
+                    backgroundColor: 'var(--amber)',
+                    color: '#fff',
+                    borderRadius: '10px',
+                    padding: '1px 5px',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                  }}
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--ink-soft)' }}>
               {user?.full_name} ({user?.role?.toUpperCase()})
             </span>

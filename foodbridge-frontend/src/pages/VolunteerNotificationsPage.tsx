@@ -18,7 +18,7 @@ export const VolunteerNotificationsPage = () => {
     queryKey: ['notifications'],
     queryFn: async () => {
       const res = await notificationApi.getNotifications();
-      return res.data.results || res.data || [];
+      return res || [];
     },
   });
 
