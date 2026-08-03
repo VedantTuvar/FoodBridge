@@ -172,3 +172,6 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
+
+GDAL_LIBRARY_PATH = r"C:\FoodBridge\foodbridge-backend\venv\Lib\site-packages\osgeo\gdal.dll"
+GEOS_LIBRARY_PATH = r"C:\FoodBridge\foodbridge-backend\venv\Lib\site-packages\osgeo\geos_c.dll"
