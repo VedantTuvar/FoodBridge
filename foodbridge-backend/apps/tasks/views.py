@@ -51,13 +51,17 @@ class AcceptTaskView(generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         task = self.get_object()
-        if task.volunteer is not None and task.volunteer != request.user.volunteer_profile:
+        volunteer_profile = getattr(request.user, 'volunteer_profile', None)
+        if volunteer_profile is None:
+            return Response({'success': False, 'message': 'Volunteer profile not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if task.volunteer is not None and task.volunteer != volunteer_profile:
             return Response({
                 'success': False,
                 'message': 'Task has already been accepted by another volunteer.'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        task.volunteer = request.user.volunteer_profile
+        task.volunteer = volunteer_profile
         task.status = 'assigned'
         task.save()
         return Response({

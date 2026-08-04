@@ -1,9 +1,11 @@
 import pytest
 from django.utils import timezone
 from datetime import timedelta
+from rest_framework.test import APIRequestFactory
 from apps.accounts.services import UserService
 from apps.donors.services import DonorService
 from apps.donations.services import DonationService
+from apps.donations.views import RecurringScheduleListCreateView
 
 @pytest.mark.django_db
 def test_donation_creation_and_meal_estimation():
@@ -24,3 +26,18 @@ def test_donation_creation_and_meal_estimation():
     assert donation.status == 'listed'
     assert donation.estimated_meals == 40  # 14 kg / 0.35 = 40 meals
     assert donation.quantity_kg == 14.0
+
+@pytest.mark.django_db
+def test_recurring_schedule_list_returns_empty_for_donor_without_profile():
+    user, _ = UserService.get_or_create_user("+12025550178", full_name="Donor Without Profile", role="donor")
+
+    factory = APIRequestFactory()
+    request = factory.get("/api/v1/donations/recurring-schedules/")
+    request.user = user
+
+    view = RecurringScheduleListCreateView()
+    view.request = request
+
+    queryset = view.get_queryset()
+
+    assert queryset.count() == 0

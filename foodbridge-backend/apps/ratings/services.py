@@ -25,12 +25,18 @@ class RatingService:
 
         avg_score = round(avg_score, 2)
 
-        if user.role == 'donor' and hasattr(user, 'donor_profile'):
-            user.donor_profile.rating_avg = avg_score
-            user.donor_profile.save(update_fields=['rating_avg'])
-        elif user.role == 'ngo' and hasattr(user, 'ngo_profile'):
-            user.ngo_profile.rating_avg = avg_score
-            user.ngo_profile.save(update_fields=['rating_avg'])
-        elif user.role == 'volunteer' and hasattr(user, 'volunteer_profile'):
-            user.volunteer_profile.rating_avg = avg_score
-            user.volunteer_profile.save(update_fields=['rating_avg'])
+        if user.role == 'donor':
+            donor_profile = getattr(user, 'donor_profile', None)
+            if donor_profile is not None:
+                donor_profile.rating_avg = avg_score
+                donor_profile.save(update_fields=['rating_avg'])
+        elif user.role == 'ngo':
+            ngo_profile = getattr(user, 'ngo_profile', None)
+            if ngo_profile is not None:
+                ngo_profile.rating_avg = avg_score
+                ngo_profile.save(update_fields=['rating_avg'])
+        elif user.role == 'volunteer':
+            volunteer_profile = getattr(user, 'volunteer_profile', None)
+            if volunteer_profile is not None:
+                volunteer_profile.rating_avg = avg_score
+                volunteer_profile.save(update_fields=['rating_avg'])

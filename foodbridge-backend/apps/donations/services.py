@@ -69,6 +69,9 @@ class DonationService:
 class RecurringDonationService:
     @staticmethod
     def create_schedule(donor_profile, food_type, quantity_kg, frequency, time_of_day, pickup_address, latitude, longitude):
+        if donor_profile is None:
+            raise ValueError('Donor profile is required to create a recurring donation schedule.')
+
         location = create_geography_point(latitude, longitude)
         schedule = RecurringDonationSchedule.objects.create(
             donor=donor_profile,

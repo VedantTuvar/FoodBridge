@@ -85,8 +85,8 @@ DATABASES = {
         'NAME': os.environ.get('POSTGRES_DB', 'foodbridge_db'),
         'USER': os.environ.get('POSTGRES_USER', 'foodbridge_admin'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'secretpassword'),
-        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
-        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'HOST': os.environ.get('POSTGRES_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5433'),
     }
 }
 
@@ -159,7 +159,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",

@@ -3,16 +3,17 @@ from .base import *
 DEBUG = False
 SECRET_KEY = 'test-secret-key'
 
-# Remove daphne and GIS apps for in-memory SQLite testing environment
-INSTALLED_APPS = [
-    app for app in INSTALLED_APPS 
-    if app not in ['daphne', 'django.contrib.gis', 'rest_framework_gis']
-]
+# Keep GIS support enabled so the app's spatial models can be tested properly.
+INSTALLED_APPS = INSTALLED_APPS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'foodbridge_db',
+        'USER': 'foodbridge_admin',
+        'PASSWORD': 'secretpassword',
+        'HOST': '127.0.0.1',
+        'PORT': '5433',
     }
 }
 

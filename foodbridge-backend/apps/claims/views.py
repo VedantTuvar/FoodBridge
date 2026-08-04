@@ -21,8 +21,10 @@ class ClaimDonationView(views.APIView):
                         'message': f'Donation cannot be claimed. Current status: {donation.status}'
                     }, status=status.HTTP_400_BAD_REQUEST)
 
-                ngo_profile = request.user.ngo_profile
-                
+                ngo_profile = getattr(request.user, 'ngo_profile', None)
+                if ngo_profile is None:
+                    return Response({'success': False, 'message': 'NGO profile not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
                 # Create Claim record
                 claim = Claim.objects.create(donation=donation, ngo=ngo_profile)
                 

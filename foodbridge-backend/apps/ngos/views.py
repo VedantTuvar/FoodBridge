@@ -34,7 +34,10 @@ class NGOVerificationUploadView(APIView):
         if not file_obj:
             return Response({'success': False, 'message': 'No verification document provided.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        ngo_profile = request.user.ngo_profile
+        ngo_profile = getattr(request.user, 'ngo_profile', None)
+        if ngo_profile is None:
+            return Response({'success': False, 'message': 'NGO profile not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
         updated = NGOService.upload_verification_document(ngo_profile, file_obj)
         return Response({
             'success': True,
@@ -47,25 +50,36 @@ class NGOFoodRequestListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        if self.request.user.role == 'ngo' and hasattr(self.request.user, 'ngo_profile'):
-            return NGOFoodRequest.objects.filter(ngo=self.request.user.ngo_profile)
+        if self.request.user.role == 'ngo':
+            ngo_profile = getattr(self.request.user, 'ngo_profile', None)
+            if ngo_profile is not None:
+                return NGOFoodRequest.objects.filter(ngo=ngo_profile)
         return NGOFoodRequest.objects.filter(is_fulfilled=False)
 
     def perform_create(self, serializer):
-        serializer.save(ngo=self.request.user.ngo_profile)
+        ngo_profile = getattr(self.request.user, 'ngo_profile', None)
+        if ngo_profile is None:
+            raise ValueError('You must create an NGO profile before creating food requests.')
+        serializer.save(ngo=ngo_profile)
 
 class NGOFoodRequestDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = NGOFoodRequestSerializer
     permission_classes = [permissions.IsAuthenticated, IsNGO]
 
     def get_queryset(self):
-        return NGOFoodRequest.objects.filter(ngo=self.request.user.ngo_profile)
+        ngo_profile = getattr(self.request.user, 'ngo_profile', None)
+        if ngo_profile is None:
+            return NGOFoodRequest.objects.none()
+        return NGOFoodRequest.objects.filter(ngo=ngo_profile)
 
 class NGOAnalyticsView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsNGO]
 
     def get(self, request):
-        ngo = request.user.ngo_profile
+        ngo = getattr(request.user, 'ngo_profile', None)
+        if ngo is None:
+            return Response({'success': False, 'message': 'NGO profile not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
         claims = Claim.objects.filter(ngo=ngo)
         total_claims = claims.count()
         total_meals_received = sum(c.donation.estimated_meals for c in claims if c.donation)

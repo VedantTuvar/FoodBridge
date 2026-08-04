@@ -17,9 +17,13 @@ def aggregate_daily_impact():
     for user in users:
         metric, created = ImpactMetric.objects.get_or_create(user=user)
         
-        if user.role == 'donor' and hasattr(user, 'donor_profile'):
+        if user.role == 'donor':
+            donor_profile = getattr(user, 'donor_profile', None)
+            if donor_profile is None:
+                continue
+
             donations = Donation.objects.filter(
-                donor=user.donor_profile,
+                donor=donor_profile,
                 status__in=['delivered', 'confirmed', 'closed']
             ).aggregate(
                 total_kg=Sum('quantity_kg'),

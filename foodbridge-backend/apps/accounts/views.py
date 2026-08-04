@@ -9,17 +9,23 @@ from .serializers import (
 from .services import (
     OTPService, UserService, AuthService, PasswordResetService, EmailVerificationService
 )
+from django.db import IntegrityError
 
 class OTPSendView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+        
+        print(request)
         serializer = OTPSendSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone = serializer.validated_data['phone_number']
 
+        print(phone)
+
         otp_record = OTPService.generate_and_send_otp(phone)
 
+        print(otp_record)
         return Response({
             'success': True,
             'message': f'OTP code sent successfully to {phone}.',
@@ -34,16 +40,22 @@ class OTPVerifyView(APIView):
         serializer.is_valid(raise_exception=True)
         phone = serializer.validated_data['phone_number']
         code = serializer.validated_data['otp_code']
+        print(serializer)
 
         is_valid, message = OTPService.verify_otp(phone, code)
-
+        print(message)
         if not is_valid:
             return Response({
                 'success': False,
                 'message': message
             }, status=status.HTTP_400_BAD_REQUEST)
-
-        user, created = UserService.get_or_create_user(phone)
+        try:
+            user, created = UserService.get_or_create_user(phone)
+        except IntegrityError:
+            return Response({
+                'success': False,
+                'message': 'Failed to create user due to a conflict. Please try again.'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         user.is_phone_verified = True
         user.is_verified = True
         user.save(update_fields=['is_phone_verified', 'is_verified'])

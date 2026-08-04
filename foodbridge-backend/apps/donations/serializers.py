@@ -3,8 +3,9 @@ from common.utils import calculate_estimated_meals, create_geography_point
 from .models import Donation, RecurringDonationSchedule, DonationImageUpload
 
 class DonationSerializer(serializers.ModelSerializer):
-    latitude = serializers.FloatField(write_only=True, required=False)
-    longitude = serializers.FloatField(write_only=True, required=False)
+    latitude = serializers.FloatField(write_only=True, required=False, allow_null=True)
+    longitude = serializers.FloatField(write_only=True, required=False, allow_null=True)
+    quantity_kg = serializers.FloatField(required=True)
     pickup_latitude = serializers.SerializerMethodField(read_only=True)
     pickup_longitude = serializers.SerializerMethodField(read_only=True)
     donor_name = serializers.CharField(source='donor.organization_name', read_only=True)
@@ -28,8 +29,13 @@ class DonationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         lat = validated_data.pop('latitude', 37.7749)
         lng = validated_data.pop('longitude', -122.4194)
+        quantity = validated_data.get('quantity_kg')
+
+        if quantity is None:
+            raise serializers.ValidationError({'quantity_kg': 'Quantity is required.'})
+
         validated_data['pickup_location'] = create_geography_point(lat, lng)
-        validated_data['estimated_meals'] = calculate_estimated_meals(validated_data['quantity_kg'])
+        validated_data['estimated_meals'] = calculate_estimated_meals(float(quantity))
         return super().create(validated_data)
 
 class RecurringDonationScheduleSerializer(serializers.ModelSerializer):

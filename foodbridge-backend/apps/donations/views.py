@@ -13,12 +13,17 @@ class DonationListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'donor' and hasattr(user, 'donor_profile'):
-            return Donation.objects.filter(donor=user.donor_profile)
+        if user.role == 'donor':
+            donor_profile = getattr(user, 'donor_profile', None)
+            if donor_profile is not None:
+                return Donation.objects.filter(donor=donor_profile)
         return Donation.objects.filter(status='listed')
 
     def perform_create(self, serializer):
-        serializer.save(donor=self.request.user.donor_profile)
+        donor_profile = getattr(self.request.user, 'donor_profile', None)
+        if donor_profile is None:
+            raise ValueError('You must create a donor profile before creating donations.')
+        serializer.save(donor=donor_profile)
 
 class DonationDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Donation.objects.all()
@@ -32,8 +37,12 @@ class CancelDonationView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsDonor]
 
     def patch(self, request, pk):
+        donor_profile = getattr(request.user, 'donor_profile', None)
+        if donor_profile is None:
+            return Response({'success': False, 'message': 'Donor profile not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            donation = Donation.objects.get(pk=pk, donor=request.user.donor_profile)
+            donation = Donation.objects.get(pk=pk, donor=donor_profile)
             updated = DonationService.cancel_donation(donation)
             return Response({
                 'success': True,
@@ -50,17 +59,26 @@ class RecurringScheduleListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated, IsDonor]
 
     def get_queryset(self):
-        return RecurringDonationSchedule.objects.filter(donor=self.request.user.donor_profile)
+        donor_profile = getattr(self.request.user, 'donor_profile', None)
+        if donor_profile is None:
+            return RecurringDonationSchedule.objects.none()
+        return RecurringDonationSchedule.objects.filter(donor=donor_profile)
 
     def perform_create(self, serializer):
-        serializer.save(donor=self.request.user.donor_profile)
+        donor_profile = getattr(self.request.user, 'donor_profile', None)
+        if donor_profile is None:
+            raise ValueError('You must create a donor profile before creating recurring donations.')
+        serializer.save(donor=donor_profile)
 
 class RecurringScheduleDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = RecurringDonationScheduleSerializer
     permission_classes = [permissions.IsAuthenticated, IsDonor]
 
     def get_queryset(self):
-        return RecurringDonationSchedule.objects.filter(donor=self.request.user.donor_profile)
+        donor_profile = getattr(self.request.user, 'donor_profile', None)
+        if donor_profile is None:
+            return RecurringDonationSchedule.objects.none()
+        return RecurringDonationSchedule.objects.filter(donor=donor_profile)
 
 class DonationImageUploadView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsDonor]

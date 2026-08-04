@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: foodbridge_admin
       POSTGRES_PASSWORD: secretpassword
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -73,6 +73,28 @@ services:
     depends_on:
       - redis
       - db
+
+  celery:
+    build:
+      context: ./foodbridge-backend
+      dockerfile: Dockerfile
+    container_name: foodbridge_celery
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - ./foodbridge-backend:/app
+    environment:
+      POSTGRES_DB: foodbridge_db
+      POSTGRES_USER: foodbridge_admin
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   frontend:
     build:

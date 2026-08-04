@@ -1,9 +1,11 @@
+import * as React from 'react';
+
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
 }
 
-export const Input: React.FC<InputProps> = ({ label, error, ...props }) => {
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(({ label, error, ...props }, ref) => {
   return (
     <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column' }}>
       {label && (
@@ -21,6 +23,7 @@ export const Input: React.FC<InputProps> = ({ label, error, ...props }) => {
         </label>
       )}
       <input
+        ref={ref}
         style={{
           fontFamily: 'var(--font-body)',
           fontSize: '15px',
@@ -40,4 +43,6 @@ export const Input: React.FC<InputProps> = ({ label, error, ...props }) => {
       )}
     </div>
   );
-};
+});
+
+Input.displayName = 'Input';

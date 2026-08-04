@@ -1,6 +1,8 @@
+import re
 import uuid
 import secrets
 from django.contrib.auth import get_user_model, authenticate
+from django.db import IntegrityError, transaction
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -12,28 +14,40 @@ User = get_user_model()
 class OTPService:
     @staticmethod
     def generate_and_send_otp(phone_number):
-        OTPCode.objects.filter(phone_number=phone_number, is_used=False).update(is_used=True)
+        normalized_phone = OTPService._normalize_phone_number(phone_number)
+        OTPCode.objects.filter(phone_number=normalized_phone, is_used=False).update(is_used=True)
         code = generate_otp_code(6)
         expires_at = timezone.now() + timedelta(minutes=5)
         otp_record = OTPCode.objects.create(
-            phone_number=phone_number,
+            phone_number=normalized_phone,
             code=code,
             expires_at=expires_at
         )
         return otp_record
 
     @staticmethod
+    def _normalize_phone_number(phone_number):
+        if not phone_number:
+            return ''
+        phone = str(phone_number).strip()
+        digits = re.sub(r'\D', '', phone)
+        return digits
+
+    @staticmethod
     def verify_otp(phone_number, code):
+        normalized_phone = OTPService._normalize_phone_number(phone_number)
+        normalized_code = str(code or '').strip()
+
         try:
             otp_record = OTPCode.objects.filter(
-                phone_number=phone_number,
+                phone_number=normalized_phone,
                 is_used=False
             ).latest('created_at')
 
             if not otp_record.is_valid():
                 return False, "OTP code has expired or exceeded maximum verification attempts."
 
-            if otp_record.code != code:
+            if otp_record.code != normalized_code:
                 otp_record.attempts += 1
                 otp_record.save(update_fields=['attempts'])
                 return False, f"Invalid OTP code. {3 - otp_record.attempts} attempts remaining."
@@ -47,15 +61,51 @@ class OTPService:
 
 class UserService:
     @staticmethod
+    def _build_unique_username(phone_number, full_name=None):
+        base = (full_name or 'user').replace(' ', '').lower() or 'user'
+        suffix = ''.join(ch for ch in str(phone_number or '') if ch.isdigit())[-4:]
+        username = f"{base}_{suffix}" if suffix else f"{base}_{uuid.uuid4().hex[:8]}"
+
+        while User.objects.filter(username=username).exists():
+            username = f"{username}_{uuid.uuid4().hex[:4]}"
+        return username
+
+    @staticmethod
     def get_or_create_user(phone_number, full_name=None, role='donor', email=None):
-        user, created = User.objects.get_or_create(
-            phone_number=phone_number,
-            defaults={
-                'full_name': full_name or f"User {phone_number[-4:]}",
-                'role': role,
-                'email': email
-            }
-        )
+        normalized_phone = OTPService._normalize_phone_number(phone_number)
+        if not normalized_phone:
+            raise ValueError('Phone number is required.')
+
+        user = User.objects.filter(phone_number=normalized_phone).first()
+        if user is None:
+            created = False
+            # Try creating a user with a unique username, retry on IntegrityError
+            attempts = 0
+            while attempts < 5 and not created:
+                attempts += 1
+                username = UserService._build_unique_username(normalized_phone, full_name)
+                if not username:
+                    username = uuid.uuid4().hex[:12]
+                try:
+                    with transaction.atomic():
+                        user = User.objects.create_user(
+                            username=username,
+                            phone_number=normalized_phone,
+                            email=email,
+                            password=None,
+                            full_name=full_name or f"User {normalized_phone[-4:]}",
+                            role=role,
+                            is_phone_verified=True,
+                            is_email_verified=False
+                        )
+                        created = True
+                except IntegrityError:
+                    # Likely username collision or other unique constraint; retry with new username
+                    created = False
+                    continue
+        else:
+            created = False
+
         if created:
             user.is_phone_verified = True
             user.save(update_fields=['is_phone_verified'])
@@ -63,14 +113,18 @@ class UserService:
 
     @staticmethod
     def register_user(full_name, phone_number, email, password, role='donor'):
-        if User.objects.filter(phone_number=phone_number).exists():
+        normalized_phone = OTPService._normalize_phone_number(phone_number)
+        if not normalized_phone:
+            raise ValueError("Phone number is required.")
+        if User.objects.filter(phone_number=normalized_phone).exists():
             raise ValueError("A user with this phone number already exists.")
         if email and User.objects.filter(email=email).exists():
             raise ValueError("A user with this email address already exists.")
 
+        username = UserService._build_unique_username(normalized_phone, full_name)
         user = User.objects.create_user(
-            username=phone_number,
-            phone_number=phone_number,
+            username=username,
+            phone_number=normalized_phone,
             email=email,
             password=password,
             full_name=full_name,
@@ -93,7 +147,8 @@ class AuthService:
             if '@' in identity:
                 user = User.objects.get(email=identity)
             else:
-                user = User.objects.get(phone_number=identity)
+                normalized_identity = OTPService._normalize_phone_number(identity)
+                user = User.objects.get(phone_number=normalized_identity)
         except User.DoesNotExist:
             return None, "Invalid email/phone number or password."
 
@@ -129,7 +184,8 @@ class PasswordResetService:
         if '@' in identity:
             user = User.objects.filter(email=identity).first()
         else:
-            user = User.objects.filter(phone_number=identity).first()
+            normalized_identity = OTPService._normalize_phone_number(identity)
+            user = User.objects.filter(phone_number=normalized_identity).first()
 
         if not user:
             # Silent return to avoid user enumeration
